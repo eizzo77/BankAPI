@@ -8,7 +8,7 @@ const createUser = (newUser) => {
     checkUserValidation(currentUsers, newUser) &&
     checkValidPassport(newUser)
   ) {
-    currentUsers.push({ ...newUser, cash: 0, credit: 0 });
+    currentUsers.push({ ...newUser, cash: 0, credit: 0, isActive: true });
     saveUsers(currentUsers);
   }
   return currentUsers;
@@ -31,7 +31,7 @@ const updateUserAmount = (userPassportID, amount, toUpdate, mode) => {
   const user = currentUsers[userIndex];
   const amountNum = Number(amount);
   const userAmount = Number(user[toUpdate]);
-  if (checkPositiveNumber(amountNum)) {
+  if (checkUserActive(user) && checkPositiveNumber(amountNum)) {
     let sum;
     if (mode === "deposit") {
       sum = userAmount + amountNum;
@@ -44,6 +44,16 @@ const updateUserAmount = (userPassportID, amount, toUpdate, mode) => {
     saveUsers(currentUsers);
     return currentUsers[userIndex];
   }
+};
+
+const toggleActive = (passportID) => {
+  const users = loadUsers();
+  const userIndex = checkUserExistence(users, passportID);
+  const user = users[userIndex];
+  const toggle = !user.isActive;
+  users.splice(userIndex, 1, { ...user, isActive: toggle });
+  saveUsers(users);
+  return users[userIndex];
 };
 
 // basically in this function i use a mix of withraw & deposit = withdraw for the sending user and deposit for the receiving one.
@@ -79,13 +89,12 @@ const transfer = (userPassportID, userToTransferID, amount) => {
 
 const filterUsersBy = (amount, prop) => {
   const users = loadUsers();
-  const filteredUsers = users.filter((user) => user[prop] > amount);
+  const filteredUsers = users.filter((user) => user[prop] >= amount);
   return filteredUsers;
 };
 
 const sortUsersBy = (sortBy, orderBy) => {
   const users = loadUsers();
-  console.log(sortBy);
   if (users.length > 0 && users[0].hasOwnProperty(sortBy)) {
     const sortedUsers = users.sort((user1, user2) =>
       orderBy === "desc"
@@ -98,7 +107,23 @@ const sortUsersBy = (sortBy, orderBy) => {
   }
 };
 
+const filterUsersByActivity = (isActive, amount) => {
+  const users = loadUsers();
+  const filteredUsers = users.filter(
+    (user) => user["isActive"] === isActive && user.cash >= amount
+  );
+  return filteredUsers;
+};
+
 // private methods for checking validation, loading and saving users.
+
+const checkUserActive = (user) => {
+  if (user.isActive) {
+    return true;
+  } else {
+    throw new Error(`user with the id of ${user.passportID} is not Active`);
+  }
+};
 
 const checkWithdraw = (user, userAmount, amountNum) => {
   if (userAmount > 0 && user.credit * -1 <= userAmount - amountNum) {
@@ -171,4 +196,6 @@ module.exports = {
   getUsers,
   filterUsersBy,
   sortUsersBy,
+  toggleActive,
+  filterUsersByActivity,
 };

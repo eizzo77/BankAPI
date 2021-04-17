@@ -32,7 +32,7 @@ app.put("/api/users/:passportID", (req, res, next) => {
       prop,
       "deposit"
     );
-    res.status(204).send(updatedUser);
+    res.status(200).send(updatedUser);
   } catch (error) {
     res.status(404).send({ error: error.message });
   }
@@ -50,7 +50,7 @@ app.put("/api/users/:passportID/withdraw", (req, res, next) => {
       "cash",
       "withdraw"
     );
-    res.status(204).send(updatedUser);
+    res.status(200).send(updatedUser);
   } catch (error) {
     res.status(404).send({ error: error.message });
   }
@@ -67,17 +67,18 @@ app.put("/api/users/:passportID/transfer", (req, res, next) => {
       transferTo,
       amount
     );
-    res.status(204).send(updatedUsersAfterTransfer);
+    res.status(200).send(updatedUsersAfterTransfer);
   } catch (error) {
     res.status(404).send({ error: error.message });
   }
 });
 
 app.put("/api/users/:passportID/setActive", (req, res, next) => {
+  console.log("setting user active/inactive");
   try {
     const { passportID } = req.params;
     const userAfterToggle = utils.toggleActive(passportID);
-    res.status(204).send(userAfterToggle);
+    res.status(200).send(userAfterToggle);
   } catch (error) {
     res.status(404).send({ error: error.message });
   }
@@ -115,6 +116,22 @@ app.get("/api/users", (req, res, next) => {
       const { amountAbove } = req.query;
       const { prop } = req.query;
       const filteredUsers = utils.filterUsersBy(amountAbove, prop);
+      res.status(200).send(filteredUsers);
+    } catch (error) {
+      res.status(404).send({ error: error.message });
+    }
+  } else {
+    next();
+  }
+});
+
+app.get("/api/users", (req, res, next) => {
+  if (req.query["isActive"]) {
+    console.log("getting users by activity and amount...");
+    try {
+      const { isActive } = req.query;
+      const { amount } = req.query;
+      const filteredUsers = utils.filterUsersByActivity(isActive, amount);
       res.status(200).send(filteredUsers);
     } catch (error) {
       res.status(404).send({ error: error.message });
