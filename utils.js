@@ -14,6 +14,17 @@ const createUser = (newUser) => {
   return currentUsers;
 };
 
+const getUsers = () => {
+  const users = loadUsers();
+  return users;
+};
+
+const getUser = (passportID) => {
+  const users = loadUsers();
+  const userIndex = checkUserExistence(users, passportID);
+  return users[userIndex];
+};
+
 const updateUserAmount = (userPassportID, amount, toUpdate, mode) => {
   const currentUsers = loadUsers();
   const userIndex = checkUserExistence(currentUsers, userPassportID);
@@ -35,23 +46,59 @@ const updateUserAmount = (userPassportID, amount, toUpdate, mode) => {
   }
 };
 
+// basically in this function i use a mix of withraw & deposit = withdraw for the sending user and deposit for the receiving one.
+// in case of an error in withdraw, it throws error so the function doesnt proceed to deposit part.
+// in case of an error in deposit, I catch the error and deposit the withdrawn amount of money back to the sending user.
 const transfer = (userPassportID, userToTransferID, amount) => {
-  const sendingUserAfterWithdraw = updateUserAmount(
+  let sendingUserAfterWithdraw = updateUserAmount(
     userPassportID,
     amount,
     "cash",
     "withdraw"
   );
   console.log("here");
-  const receivingUserAfterDeposit = updateUserAmount(
-    userToTransferID,
-    amount,
-    "cash",
-    "deposit"
-  );
-
+  let receivingUserAfterDeposit;
+  try {
+    receivingUserAfterDeposit = updateUserAmount(
+      userToTransferID,
+      amount,
+      "cash",
+      "deposit"
+    );
+  } catch (error) {
+    sendingUserAfterWithdraw = updateUserAmount(
+      userPassportID,
+      amount,
+      "cash",
+      "deposit"
+    );
+    throw new Error(error.message);
+  }
   return [sendingUserAfterWithdraw, receivingUserAfterDeposit];
 };
+
+const filterUsersBy = (amount, prop) => {
+  const users = loadUsers();
+  const filteredUsers = users.filter((user) => user[prop] > amount);
+  return filteredUsers;
+};
+
+const sortUsersBy = (sortBy, orderBy) => {
+  const users = loadUsers();
+  console.log(sortBy);
+  if (users.length > 0 && users[0].hasOwnProperty(sortBy)) {
+    const sortedUsers = users.sort((user1, user2) =>
+      orderBy === "desc"
+        ? user2[sortBy] - user1[sortBy]
+        : user1[sortBy] - user2[sortBy]
+    );
+    return sortedUsers;
+  } else {
+    throw new Error("users dont have such props...");
+  }
+};
+
+// private methods for checking validation, loading and saving users.
 
 const checkWithdraw = (user, userAmount, amountNum) => {
   if (userAmount > 0 && user.credit * -1 <= userAmount - amountNum) {
@@ -82,9 +129,7 @@ const checkUserValidation = (currentUsers, userToValidate) => {
   ) {
     return true;
   } else {
-    throw new Error(
-      "new User doesn't exist or already exists. check new User data carefully"
-    );
+    throw new Error("User already exists.");
   }
 };
 
@@ -118,4 +163,12 @@ const checkPositiveNumber = (numberToCheck) => {
   }
 };
 
-module.exports = { createUser, updateUserAmount, transfer };
+module.exports = {
+  createUser,
+  updateUserAmount,
+  transfer,
+  getUser,
+  getUsers,
+  filterUsersBy,
+  sortUsersBy,
+};

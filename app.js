@@ -32,7 +32,7 @@ app.put("/api/users/:passportID", (req, res, next) => {
       prop,
       "deposit"
     );
-    res.send(updatedUser);
+    res.status(204).send(updatedUser);
   } catch (error) {
     res.status(404).send({ error: error.message });
   }
@@ -50,7 +50,7 @@ app.put("/api/users/:passportID/withdraw", (req, res, next) => {
       "cash",
       "withdraw"
     );
-    res.send(updatedUser);
+    res.status(204).send(updatedUser);
   } catch (error) {
     res.status(404).send({ error: error.message });
   }
@@ -62,13 +62,75 @@ app.put("/api/users/:passportID/transfer", (req, res, next) => {
     const { passportID } = req.params;
     const { transferTo } = req.query;
     const { amount } = req.query;
-    console.log(passportID);
     const updatedUsersAfterTransfer = utils.transfer(
       passportID,
       transferTo,
       amount
     );
-    res.send(updatedUsersAfterTransfer);
+    res.status(204).send(updatedUsersAfterTransfer);
+  } catch (error) {
+    res.status(404).send({ error: error.message });
+  }
+});
+
+app.put("/api/users/:passportID/setActive", (req, res, next) => {
+  try {
+    const { passportID } = req.params;
+    const userAfterToggle = utils.toggleActive(passportID);
+    res.status(204).send(userAfterToggle);
+  } catch (error) {
+    res.status(404).send({ error: error.message });
+  }
+});
+
+app.get("/api/users/:passportID", (req, res, next) => {
+  console.log("getting...");
+  try {
+    const { passportID } = req.params;
+    const userToGet = utils.getUser(passportID);
+    res.send(userToGet);
+  } catch (error) {
+    res.status(404).send({ error: error.message });
+  }
+});
+
+app.get("/api/users", (req, res, next) => {
+  if (Object.keys(req.query).length > 0) {
+    next();
+  } else {
+    console.log("getting all users..");
+    try {
+      const users = utils.getUsers();
+      res.status(200).send(users);
+    } catch (error) {
+      res.status(404).send({ error: error.message });
+    }
+  }
+});
+
+app.get("/api/users", (req, res, next) => {
+  if (req.query["amountAbove"]) {
+    console.log("filtering by amount over specified amount...");
+    try {
+      const { amountAbove } = req.query;
+      const { prop } = req.query;
+      const filteredUsers = utils.filterUsersBy(amountAbove, prop);
+      res.status(200).send(filteredUsers);
+    } catch (error) {
+      res.status(404).send({ error: error.message });
+    }
+  } else {
+    next();
+  }
+});
+
+app.get("/api/users", (req, res, next) => {
+  console.log("sorting by a prop...");
+  try {
+    const { sortBy } = req.query;
+    const { orderBy } = req.query;
+    const sortedUsers = utils.sortUsersBy(sortBy, orderBy);
+    res.status(200).send(sortedUsers);
   } catch (error) {
     res.status(404).send({ error: error.message });
   }
