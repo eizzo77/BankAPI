@@ -14,18 +14,52 @@ const createUser = (newUser) => {
   return currentUsers;
 };
 
-const deposit = (userPassportID, amount, toUpdate) => {
-  console.log(toUpdate);
+const updateUserAmount = (userPassportID, amount, toUpdate, mode) => {
   const currentUsers = loadUsers();
   const userIndex = checkUserExistence(currentUsers, userPassportID);
   const user = currentUsers[userIndex];
-  console.log(user[toUpdate]);
   const amountNum = Number(amount);
+  const userAmount = Number(user[toUpdate]);
   if (checkPositiveNumber(amountNum)) {
-    const sum = Number(user[toUpdate]) + amountNum;
+    let sum;
+    if (mode === "deposit") {
+      sum = userAmount + amountNum;
+    } else if (mode === "withdraw") {
+      if (checkWithdraw(user, userAmount, amountNum)) {
+        sum = userAmount - amountNum;
+      }
+    }
     currentUsers.splice(userIndex, 1, { ...user, [toUpdate]: sum });
     saveUsers(currentUsers);
     return currentUsers[userIndex];
+  }
+};
+
+const transfer = (userPassportID, userToTransferID, amount) => {
+  const sendingUserAfterWithdraw = updateUserAmount(
+    userPassportID,
+    amount,
+    "cash",
+    "withdraw"
+  );
+  console.log("here");
+  const receivingUserAfterDeposit = updateUserAmount(
+    userToTransferID,
+    amount,
+    "cash",
+    "deposit"
+  );
+
+  return [sendingUserAfterWithdraw, receivingUserAfterDeposit];
+};
+
+const checkWithdraw = (user, userAmount, amountNum) => {
+  if (userAmount > 0 && user.credit * -1 <= userAmount - amountNum) {
+    return true;
+  } else {
+    throw new Error(
+      `cant complete the operation. amount is out of credit limit, id ${user["passportID"]}`
+    );
   }
 };
 
@@ -84,4 +118,4 @@ const checkPositiveNumber = (numberToCheck) => {
   }
 };
 
-module.exports = { createUser, deposit };
+module.exports = { createUser, updateUserAmount, transfer };
