@@ -1,18 +1,24 @@
 const express = require("express");
 const app = express();
 const utils = require("./utils");
+var cors = require("cors");
 
 app.use(express.json());
+app.use(cors());
 
 const PORT = 8083;
+
 app.listen(PORT, () => {
   console.log(`Listening on port #${PORT}`);
 });
 
-app.post("/api/users", (req, res, next) => {
+app.post("/api/users/:passportID", (req, res, next) => {
   console.log("Posting a new User...");
   try {
-    const users = utils.createUser(req.body);
+    const { passportID } = req.params;
+    const newUser = { passportID: passportID };
+    console.log(newUser);
+    const users = utils.createUser(newUser);
     res.status(200).send(users);
   } catch (error) {
     res.status(404).send({ error: error.message });

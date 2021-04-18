@@ -8,7 +8,7 @@ const createUser = (newUser) => {
     checkUserValidation(currentUsers, newUser) &&
     checkValidPassport(newUser)
   ) {
-    currentUsers.push({ ...newUser, cash: 0, credit: 0, isActive: true });
+    currentUsers.push({ ...newUser, cash: 0, credit: 0, isActive: "true" });
     saveUsers(currentUsers);
   }
   return currentUsers;
