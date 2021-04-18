@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const utils = require("./utils");
 var cors = require("cors");
+const path = require("path");
 
 app.use(express.json());
 app.use(cors());
@@ -11,6 +12,9 @@ const PORT = process.env.PORT || 8083;
 app.listen(PORT, () => {
   console.log(`Listening on port #${PORT}`);
 });
+
+const publicDirectory = path.join(__dirname, "client/build");
+app.use(express.static(publicDirectory));
 
 app.post("/api/users/:passportID", (req, res, next) => {
   console.log("Posting a new User...");
