@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-// const PATH = process.env.PATH;
+const PATH = process.env;
 
 export const App = () => {
+  console.log(PATH);
   const [users, setUsers] = useState([]);
   const [addUserMsg, setAddUserMsg] = useState("");
   const [idInput, setIdInput] = useState("");
