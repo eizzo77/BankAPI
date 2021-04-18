@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const PATH = "http://localhost:8083";
+// const PATH = process.env.PATH;
 
 export const App = () => {
   const [users, setUsers] = useState([]);
@@ -10,7 +10,7 @@ export const App = () => {
 
   useEffect(() => {
     const fetch = async () => {
-      const usersData = await axios.get(PATH + "/api/users");
+      const usersData = await axios.get("/api/users");
       console.log(usersData);
       setUsers(usersData.data);
     };
@@ -34,7 +34,7 @@ export const App = () => {
 
   const onAddingUserClick = async () => {
     try {
-      const users = await axios.post(PATH + "/api/users/" + idInput);
+      const users = await axios.post("/api/users/" + idInput);
       setUsers(users.data);
       setAddUserMsg("");
     } catch (error) {
