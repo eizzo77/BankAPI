@@ -27,20 +27,26 @@ app.post("/users", async (req, res) => {
 
 app.post("/api/users/:passportID/transfer", async (req, res) => {
   console.log("transffering...");
-  const transfer = await new Transaction({
-    sender: req.params.passportID,
-    receiver: req.query.transferTo,
-    transferAmount: req.query.amount,
-    ...req.body,
-  });
+  const { passportID } = req.params;
+  const { transferTo } = req.query;
+  const { amount } = req.query;
+  console.log(transferTo);
+  const user = await User.findById(passportID);
+  const trasnferToUser = await User.findById(transferTo);
   try {
-    // const updatedUsersAfterTransfer = utils.transfer(
-    //   passportID,
-    //   transferTo,
-    //   amount
-    // );
+    const usersAfterTransfer = await utils.transfer(
+      user,
+      trasnferToUser,
+      amount
+    );
+    const transfer = await new Transaction({
+      sender: passportID,
+      receiver: transferTo,
+      transferAmount: amount,
+    });
     await transfer.save();
-    res.status(200).send(transfer);
+    console.log(usersAfterTransfer);
+    res.status(200).send({ transfer, usersAfterTransfer });
   } catch (error) {
     res.status(400).send({ error: error.message });
   }
@@ -51,21 +57,16 @@ app.patch("/api/users/:passportID/deposit", async (req, res) => {
   try {
     const { passportID } = req.params;
     const amount = req.body.cash;
-    const userAfterUpdate = await User.findByIdAndUpdate(
-      passportID,
-      {
-        $inc: { cash: amount },
-      },
-      {
-        new: true,
-        runvalidators: true,
-      }
+    const user = await User.findById(passportID);
+    const updatedUser = await utils.updateUserAmount(
+      user,
+      amount,
+      "cash",
+      "deposit"
     );
-    console.log(userAfterUpdate);
-    userAfterUpdate
-      ? res.status(200).send(userAfterUpdate)
-      : res.status(404).send();
-    console.log();
+
+    console.log(updatedUser);
+    updatedUser ? res.status(200).send(updatedUser) : res.status(404).send();
   } catch (error) {
     res.status(400).send({ error: error.message });
   }
@@ -78,14 +79,11 @@ app.patch("/api/users/:passportID/withdraw", async (req, res) => {
     const amount = req.body.cash;
     const user = await User.findById(passportID);
     utils.checkWithdraw(user, amount);
-    const updatedUser = await User.findOneAndUpdate(
-      { _id: passportID },
-      {
-        $inc: { cash: -amount },
-      },
-      {
-        new: true,
-      }
+    const updatedUser = await utils.updateUserAmount(
+      user,
+      amount,
+      "cash",
+      "withdraw"
     );
     console.log(updatedUser);
     updatedUser ? res.status(200).send(updatedUser) : res.status(404).send();
@@ -94,18 +92,20 @@ app.patch("/api/users/:passportID/withdraw", async (req, res) => {
   }
 });
 
-app.put("/api/users/:passportID/setActive", (req, res, next) => {
+app.patch("/api/users/:passportID/setActive", async (req, res) => {
   console.log("setting user active/inactive");
   try {
     const { passportID } = req.params;
-    const userAfterToggle = utils.toggleActive(passportID);
-    res.status(200).send(userAfterToggle);
+    const userAfterToggle = await utils.toggleActive(passportID);
+    userAfterToggle
+      ? res.status(200).send(userAfterToggle)
+      : res.status(404).send();
   } catch (error) {
     res.status(404).send({ error: error.message });
   }
 });
 
-app.get("/api/users/:passportID", (req, res, next) => {
+app.get("/api/users/:passportID", (req, res) => {
   console.log("getting...");
   try {
     const { passportID } = req.params;

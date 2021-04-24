@@ -1,6 +1,9 @@
 const fs = require("fs");
+const mongoose = require("mongoose");
 const USERS_PATH = __dirname + "/bankUsersData/bank-users.json";
 const bankUsers = require(USERS_PATH);
+const User = require("./client/src/model/User");
+const Transaction = require("./client/src/model/transactions");
 
 const createUser = (newUser) => {
   const currentUsers = loadUsers();
@@ -25,43 +28,72 @@ const getUser = (passportID) => {
   return users[userIndex];
 };
 
-const updateUserAmount = (userPassportID, amount, toUpdate, mode) => {
-  const currentUsers = loadUsers();
-  const userIndex = checkUserExistence(currentUsers, userPassportID);
-  const user = currentUsers[userIndex];
-  const amountNum = Number(amount);
-  const userAmount = Number(user[toUpdate]);
-  if (checkUserActive(user) && checkPositiveNumber(amountNum)) {
-    let sum;
-    if (mode === "deposit") {
-      sum = userAmount + amountNum;
-    } else if (mode === "withdraw") {
-      if (checkWithdraw(user, userAmount, amountNum)) {
-        sum = userAmount - amountNum;
-      }
+const updateUserAmount = async (user, amount, toUpdate, mode) => {
+  // const currentUsers = loadUsers();
+  // const userIndex = checkUserExistence(currentUsers, userPassportID);
+  // const user = currentUsers[userIndex];
+  // const amountNum = Number(amount);
+  // const userAmount = Number(user[toUpdate]);
+  const userAfterUpdate = await User.findByIdAndUpdate(
+    user._id,
+    {
+      $inc: {
+        [toUpdate]:
+          mode === "deposit"
+            ? amount
+            : checkWithdraw(user, amount)
+            ? -amount
+            : 0,
+      },
+    },
+    {
+      new: true,
+      runvalidators: true,
     }
-    currentUsers.splice(userIndex, 1, { ...user, [toUpdate]: sum });
-    saveUsers(currentUsers);
-    return currentUsers[userIndex];
-  }
+  );
+  // if (checkUserActive(user) && checkPositiveNumber(amountNum)) {
+  // let sum;
+  // if (mode === "deposit") {
+  //   sum = userAmount + amountNum;
+  // } else if (mode === "withdraw") {
+  //   if (checkWithdraw(user,amountNum)) {
+  //     sum = userAmount - amountNum;
+  //   }
+  // }
+  // currentUsers.splice(userIndex, 1, { ...user, [toUpdate]: sum });
+  // saveUsers(currentUsers);
+  return userAfterUpdate;
+  // }
 };
 
-const toggleActive = (passportID) => {
-  const users = loadUsers();
-  const userIndex = checkUserExistence(users, passportID);
-  const user = users[userIndex];
-  const toggle = !user.isActive;
-  users.splice(userIndex, 1, { ...user, isActive: toggle });
-  saveUsers(users);
-  return users[userIndex];
+const toggleActive = async (passportID) => {
+  // const users = loadUsers();
+  // const userIndex = checkUserExistence(users, passportID);
+  // const user = users[userIndex];
+  // const toggle = !user.isActive;
+  // users.splice(userIndex, 1, { ...user, isActive: toggle });
+  // saveUsers(users);
+  const updatedUser = await User.findByIdAndUpdate(
+    passportID,
+    {
+      isActive: !isActive,
+    },
+    {
+      new: true,
+      runvalidators: true,
+    }
+  );
+  console.log(updatedUser);
+  return updatedUser;
 };
 
 // basically in this function i use a mix of withraw & deposit = withdraw for the sending user and deposit for the receiving one.
 // in case of an error in withdraw, it throws error so the function doesnt proceed to deposit part.
 // in case of an error in deposit, I catch the error and deposit the withdrawn amount of money back to the sending user.
-const transfer = (userPassportID, userToTransferID, amount) => {
-  let sendingUserAfterWithdraw = updateUserAmount(
-    userPassportID,
+const transfer = async (user, userToTransfer, amount) => {
+  console.log(amount);
+  let sendingUserAfterWithdraw = await updateUserAmount(
+    user,
     amount,
     "cash",
     "withdraw"
@@ -69,21 +101,22 @@ const transfer = (userPassportID, userToTransferID, amount) => {
   console.log("here");
   let receivingUserAfterDeposit;
   try {
-    receivingUserAfterDeposit = updateUserAmount(
-      userToTransferID,
+    receivingUserAfterDeposit = await updateUserAmount(
+      userToTransfer,
       amount,
       "cash",
       "deposit"
     );
   } catch (error) {
-    sendingUserAfterWithdraw = updateUserAmount(
-      userPassportID,
+    sendingUserAfterWithdraw = await updateUserAmount(
+      user,
       amount,
       "cash",
       "deposit"
     );
     throw new Error(error.message);
   }
+  console.log(sendingUserAfterWithdraw);
   return [sendingUserAfterWithdraw, receivingUserAfterDeposit];
 };
 
