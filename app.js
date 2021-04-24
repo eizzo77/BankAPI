@@ -1,85 +1,96 @@
 const express = require("express");
 const app = express();
+require("./client/src/db/mongoose");
 const utils = require("./utils");
 var cors = require("cors");
 const path = require("path");
+const User = require("./client/src/model/User");
+const Transaction = require("./client/src/model/transactions");
 
 app.use(express.json());
 app.use(cors());
 
-const PORT = process.env.PORT || 8083;
-
-app.listen(PORT, () => {
-  console.log(`Listening on port #${PORT}`);
-});
-
 const publicDirectory = path.join(__dirname, "client/build");
 app.use(express.static(publicDirectory));
 
-app.post("/api/users/:passportID", (req, res, next) => {
+app.post("/users", async (req, res) => {
   console.log("Posting a new User...");
+  const user = await new User({ _id: req.body.passportID, ...req.body });
   try {
-    const { passportID } = req.params;
-    const newUser = { passportID: passportID };
-    console.log(newUser);
-    const users = utils.createUser(newUser);
-    res.status(200).send(users);
+    await user.save();
+    console.log(user);
+    res.status(201).send(user);
   } catch (error) {
-    res.status(404).send({ error: error.message });
+    res.status(400).send(error.message);
   }
 });
 
-// deposit and update user's credit has the same functionallity. so I made this one func that deals with both cases.
-app.put("/api/users/:passportID", (req, res, next) => {
-  console.log("puting");
+app.post("/api/users/:passportID/transfer", async (req, res) => {
+  console.log("transffering...");
+  const transfer = await new Transaction({
+    sender: req.params.passportID,
+    receiver: req.query.transferTo,
+    transferAmount: req.query.amount,
+    ...req.body,
+  });
+  try {
+    // const updatedUsersAfterTransfer = utils.transfer(
+    //   passportID,
+    //   transferTo,
+    //   amount
+    // );
+    await transfer.save();
+    res.status(200).send(transfer);
+  } catch (error) {
+    res.status(400).send({ error: error.message });
+  }
+});
+
+app.patch("/api/users/:passportID/deposit", async (req, res) => {
+  console.log("depositing");
   try {
     const { passportID } = req.params;
-    const prop = Object.keys(req.query)[0];
-    const amount = req.query[prop];
-    const updatedUser = utils.updateUserAmount(
+    const amount = req.body.cash;
+    const userAfterUpdate = await User.findByIdAndUpdate(
       passportID,
-      amount,
-      prop,
-      "deposit"
+      {
+        $inc: { cash: amount },
+      },
+      {
+        new: true,
+        runvalidators: true,
+      }
     );
-    res.status(200).send(updatedUser);
+    console.log(userAfterUpdate);
+    userAfterUpdate
+      ? res.status(200).send(userAfterUpdate)
+      : res.status(404).send();
+    console.log();
   } catch (error) {
-    res.status(404).send({ error: error.message });
+    res.status(400).send({ error: error.message });
   }
 });
 
-//same here, I can use same function to deal with withdraw and deposit. i made a mode parameter "deposit" or "withdraw".
-app.put("/api/users/:passportID/withdraw", (req, res, next) => {
+app.patch("/api/users/:passportID/withdraw", async (req, res) => {
   console.log("withdraws");
   try {
     const { passportID } = req.params;
-    const { cash } = req.query;
-    const updatedUser = utils.updateUserAmount(
-      passportID,
-      cash,
-      "cash",
-      "withdraw"
+    const amount = req.body.cash;
+    const user = await User.findById(passportID);
+    utils.checkWithdraw(user, amount);
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: passportID },
+      {
+        $inc: { cash: -amount },
+      },
+      {
+        new: true,
+      }
     );
-    res.status(200).send(updatedUser);
+    console.log(updatedUser);
+    updatedUser ? res.status(200).send(updatedUser) : res.status(404).send();
   } catch (error) {
-    res.status(404).send({ error: error.message });
-  }
-});
-
-app.put("/api/users/:passportID/transfer", (req, res, next) => {
-  console.log("transffering...");
-  try {
-    const { passportID } = req.params;
-    const { transferTo } = req.query;
-    const { amount } = req.query;
-    const updatedUsersAfterTransfer = utils.transfer(
-      passportID,
-      transferTo,
-      amount
-    );
-    res.status(200).send(updatedUsersAfterTransfer);
-  } catch (error) {
-    res.status(404).send({ error: error.message });
+    res.status(400).send({ error: error.message });
   }
 });
 
@@ -161,4 +172,10 @@ app.get("/api/users", (req, res, next) => {
   } catch (error) {
     res.status(404).send({ error: error.message });
   }
+});
+
+const PORT = process.env.PORT || 8083;
+
+app.listen(PORT, () => {
+  console.log(`Listening on port #${PORT}`);
 });

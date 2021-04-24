@@ -4,7 +4,6 @@ import axios from "axios";
 const PATH = process.env;
 
 export const App = () => {
-  console.log("hey");
   const [users, setUsers] = useState([]);
   const [addUserMsg, setAddUserMsg] = useState("");
   const [idInput, setIdInput] = useState("");

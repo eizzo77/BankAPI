@@ -125,13 +125,17 @@ const checkUserActive = (user) => {
   }
 };
 
-const checkWithdraw = (user, userAmount, amountNum) => {
-  if (userAmount > 0 && user.credit * -1 <= userAmount - amountNum) {
-    return true;
+const checkWithdraw = (user, amountNum) => {
+  if (amountNum > 0) {
+    if (user.credit * -1 <= user.cash - amountNum) {
+      return true;
+    } else {
+      throw new Error(
+        `cant complete the operation. amount is out of credit limit, id ${user._id}`
+      );
+    }
   } else {
-    throw new Error(
-      `cant complete the operation. amount is out of credit limit, id ${user["passportID"]}`
-    );
+    throw new Error("amount to withdraw must be a positive number");
   }
 };
 
@@ -198,4 +202,5 @@ module.exports = {
   sortUsersBy,
   toggleActive,
   filterUsersByActivity,
+  checkWithdraw,
 };
