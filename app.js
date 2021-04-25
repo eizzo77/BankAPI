@@ -1,17 +1,15 @@
+require("./client/src/db/mongoose");
 const express = require("express");
 const app = express();
-require("./client/src/db/mongoose");
-const utils = require("./utils");
 var cors = require("cors");
-const path = require("path");
+const utils = require("./utils");
 const User = require("./client/src/model/User");
 const Transaction = require("./client/src/model/transactions");
+const PORT = process.env.PORT || 8084;
 
-app.use(express.json());
 app.use(cors());
-
-const publicDirectory = path.join(__dirname, "client/build");
-app.use(express.static(publicDirectory));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.post("/users", async (req, res) => {
   console.log("Posting a new User...");
@@ -172,7 +170,9 @@ app.get("/api/transactions", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 8083;
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static("client/build"));
+}
 
 app.listen(PORT, () => {
   console.log(`Listening on port #${PORT}`);

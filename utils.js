@@ -1,9 +1,4 @@
-const fs = require("fs");
-const mongoose = require("mongoose");
-const USERS_PATH = __dirname + "/bankUsersData/bank-users.json";
-const bankUsers = require(USERS_PATH);
 const User = require("./client/src/model/User");
-const Transaction = require("./client/src/model/transactions");
 
 const createUser = (newUser) => {
   const currentUsers = loadUsers();
@@ -28,11 +23,6 @@ const getUser = async (passportID) => {
 };
 
 const updateUserAmount = async (user, amount, toUpdate, mode) => {
-  // const currentUsers = loadUsers();
-  // const userIndex = checkUserExistence(currentUsers, userPassportID);
-  // const user = currentUsers[userIndex];
-  // const amountNum = Number(amount);
-  // const userAmount = Number(user[toUpdate]);
   const userAfterUpdate = await User.findByIdAndUpdate(
     user._id,
     {
@@ -50,28 +40,10 @@ const updateUserAmount = async (user, amount, toUpdate, mode) => {
       runvalidators: true,
     }
   );
-  // if (checkUserActive(user) && checkPositiveNumber(amountNum)) {
-  // let sum;
-  // if (mode === "deposit") {
-  //   sum = userAmount + amountNum;
-  // } else if (mode === "withdraw") {
-  //   if (checkWithdraw(user,amountNum)) {
-  //     sum = userAmount - amountNum;
-  //   }
-  // }
-  // currentUsers.splice(userIndex, 1, { ...user, [toUpdate]: sum });
-  // saveUsers(currentUsers);
   return userAfterUpdate;
-  // }
 };
 
 const toggleActive = async (passportID) => {
-  // const users = loadUsers();
-  // const userIndex = checkUserExistence(users, passportID);
-  // const user = users[userIndex];
-  // const toggle = !user.isActive;
-  // users.splice(userIndex, 1, { ...user, isActive: toggle });
-  // saveUsers(users);
   const user = await User.findById(passportID);
   const toggled = !user.isActive;
   const updatedUser = await User.findByIdAndUpdate(
@@ -161,17 +133,6 @@ const checkWithdraw = (user, amountNum) => {
     throw new Error("amount to withdraw must be a positive number");
   }
 };
-
-// const loadUsers = () => {
-//   const usersBuffer = fs.readFileSync(USERS_PATH);
-//   const usersData = JSON.parse(usersBuffer);
-//   return usersData;
-// };
-
-// const saveUsers = (users) => {
-//   const usersString = JSON.stringify(users);
-//   fs.writeFileSync(USERS_PATH, usersString);
-// };
 
 const checkUserValidation = (currentUsers, userToValidate) => {
   if (

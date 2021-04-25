@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "cd client && npm run build",
+    "install-client": "cd client && npm install",
     "start": "node app.js",
+    "start-client": " cd src",
     "heroku-postbuild": "npm install --prefix client && npm run build --prefix client"
   },
   "keywords": [],

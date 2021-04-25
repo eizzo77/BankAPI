@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const PATH = process.env;
-
 export const App = () => {
   const [users, setUsers] = useState([]);
   const [addUserMsg, setAddUserMsg] = useState("");
@@ -10,7 +8,8 @@ export const App = () => {
 
   useEffect(() => {
     const fetch = async () => {
-      const usersData = await axios.get("/api/users");
+      console.log("here");
+      const usersData = await axios.get("api/users");
       console.log(usersData);
       setUsers(usersData.data);
     };
