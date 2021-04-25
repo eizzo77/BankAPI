@@ -6,7 +6,7 @@ mongoose.Promise = global.Promise;
 const atlasURL =
   "mongodb+srv://ItayZaguri:togZzih3VqZBqthG@cluster0.df8aj.mongodb.net/Bank-Api?retryWrites=true&w=majority";
 console.log("trying to CONNECt");
-
+console.log("in mongoose");
 mongoose
   .connect(atlasURL || "mongodb://127.0.0.1:27017/Bank-Api", {
     useNewUrlParser: true,
