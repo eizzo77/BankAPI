@@ -1,6 +1,6 @@
 const express = require("express");
 var cors = require("cors");
-const path = require("path");
+// const path = require("path");
 const app = express();
 require("./client/src/db/mongoose");
 const utils = require("./utils");
@@ -12,10 +12,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(express.static(path.join(__dirname, "../build")));
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../build"));
-});
+// app.use(express.static(path.join(__dirname, "../build")));
+// app.get("*", (req, res) => {
+//   res.sendFile(path.join(__dirname, "../build"));
+// });
 
 app.post("/users", async (req, res) => {
   console.log("Posting a new User...");
