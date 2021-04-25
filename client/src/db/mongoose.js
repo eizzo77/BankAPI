@@ -16,5 +16,3 @@ mongoose
   })
   .then(() => console.log("connected to MongoDBAtlas"))
   .catch((error) => console.log(error));
-
-module.exports = connectDB;
