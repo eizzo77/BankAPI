@@ -162,6 +162,16 @@ app.get("/api/users", async (req, res) => {
   }
 });
 
+app.get("/api/transactions", async (req, res) => {
+  console.log("getting transactions...");
+  try {
+    const trans = await Transaction.find({});
+    res.status(200).send(trans);
+  } catch (error) {
+    res.status(404).send({ error: error.message });
+  }
+});
+
 const PORT = process.env.PORT || 8083;
 
 app.listen(PORT, () => {

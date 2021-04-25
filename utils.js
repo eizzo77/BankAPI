@@ -128,17 +128,9 @@ const filterUsersBy = async (amount, prop) => {
 };
 
 const sortUsersBy = async (sortBy, orderBy) => {
-  const users = User.find({});
-  if (users.length > 0 && users[0].hasOwnProperty(sortBy)) {
-    const sortedUsers = await users.sort((user1, user2) =>
-      orderBy === "desc"
-        ? user2[sortBy] - user1[sortBy]
-        : user1[sortBy] - user2[sortBy]
-    );
-    return sortedUsers;
-  } else {
-    throw new Error("users dont have such props...");
-  }
+  const users = await User.find({}).sort({ [sortBy]: orderBy });
+  console.log(users);
+  return users;
 };
 
 const filterUsersByActivity = (isActive, amount) => {
