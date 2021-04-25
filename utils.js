@@ -17,15 +17,14 @@ const createUser = (newUser) => {
   return currentUsers;
 };
 
-const getUsers = () => {
-  const users = loadUsers();
+const getUsers = async () => {
+  const users = await User.find({});
   return users;
 };
 
-const getUser = (passportID) => {
-  const users = loadUsers();
-  const userIndex = checkUserExistence(users, passportID);
-  return users[userIndex];
+const getUser = async (passportID) => {
+  const user = await User.findById(passportID);
+  return user;
 };
 
 const updateUserAmount = async (user, amount, toUpdate, mode) => {
@@ -73,10 +72,12 @@ const toggleActive = async (passportID) => {
   // const toggle = !user.isActive;
   // users.splice(userIndex, 1, { ...user, isActive: toggle });
   // saveUsers(users);
+  const user = await User.findById(passportID);
+  const toggled = !user.isActive;
   const updatedUser = await User.findByIdAndUpdate(
     passportID,
     {
-      isActive: !isActive,
+      isActive: toggled,
     },
     {
       new: true,
@@ -120,16 +121,16 @@ const transfer = async (user, userToTransfer, amount) => {
   return [sendingUserAfterWithdraw, receivingUserAfterDeposit];
 };
 
-const filterUsersBy = (amount, prop) => {
-  const users = loadUsers();
-  const filteredUsers = users.filter((user) => user[prop] >= amount);
-  return filteredUsers;
+const filterUsersBy = async (amount, prop) => {
+  const users = await User.find({ [prop]: { $gte: amount } });
+  console.log(users);
+  return users;
 };
 
-const sortUsersBy = (sortBy, orderBy) => {
-  const users = loadUsers();
+const sortUsersBy = async (sortBy, orderBy) => {
+  const users = User.find({});
   if (users.length > 0 && users[0].hasOwnProperty(sortBy)) {
-    const sortedUsers = users.sort((user1, user2) =>
+    const sortedUsers = await users.sort((user1, user2) =>
       orderBy === "desc"
         ? user2[sortBy] - user1[sortBy]
         : user1[sortBy] - user2[sortBy]
@@ -141,11 +142,8 @@ const sortUsersBy = (sortBy, orderBy) => {
 };
 
 const filterUsersByActivity = (isActive, amount) => {
-  const users = loadUsers();
-  const filteredUsers = users.filter(
-    (user) => user["isActive"] === isActive && user.cash >= amount
-  );
-  return filteredUsers;
+  const users = User.find({ isActive: isActive, cash: { $gte: amount } });
+  return users;
 };
 
 // private methods for checking validation, loading and saving users.
@@ -172,16 +170,16 @@ const checkWithdraw = (user, amountNum) => {
   }
 };
 
-const loadUsers = () => {
-  const usersBuffer = fs.readFileSync(USERS_PATH);
-  const usersData = JSON.parse(usersBuffer);
-  return usersData;
-};
+// const loadUsers = () => {
+//   const usersBuffer = fs.readFileSync(USERS_PATH);
+//   const usersData = JSON.parse(usersBuffer);
+//   return usersData;
+// };
 
-const saveUsers = (users) => {
-  const usersString = JSON.stringify(users);
-  fs.writeFileSync(USERS_PATH, usersString);
-};
+// const saveUsers = (users) => {
+//   const usersString = JSON.stringify(users);
+//   fs.writeFileSync(USERS_PATH, usersString);
+// };
 
 const checkUserValidation = (currentUsers, userToValidate) => {
   if (

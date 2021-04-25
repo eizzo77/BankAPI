@@ -105,70 +105,58 @@ app.patch("/api/users/:passportID/setActive", async (req, res) => {
   }
 });
 
-app.get("/api/users/:passportID", (req, res) => {
+app.get("/api/users/filter", async (req, res) => {
+  console.log("filtering by amount over specified amount...");
+  try {
+    const { amountAbove } = req.query;
+    const { prop } = req.query;
+    const filteredUsers = await utils.filterUsersBy(amountAbove, prop);
+    res.status(200).send(filteredUsers);
+  } catch (error) {
+    res.status(404).send({ error: error.message });
+  }
+});
+
+app.get("/api/users/filterActivity", async (req, res) => {
+  try {
+    const { isActive } = req.query;
+    const { amount } = req.query;
+    const filteredUsers = await utils.filterUsersByActivity(isActive, amount);
+    res.status(200).send(filteredUsers);
+  } catch (error) {
+    res.status(404).send({ error: error.message });
+  }
+});
+
+app.get("/api/users/sort", async (req, res) => {
+  console.log("sorting by a prop...");
+  try {
+    const { sortBy } = req.query;
+    const { orderBy } = req.query;
+    const sortedUsers = await utils.sortUsersBy(sortBy, orderBy);
+    res.status(200).send(sortedUsers);
+  } catch (error) {
+    res.status(404).send({ error: error.message });
+  }
+});
+
+app.get("/api/users/:passportID", async (req, res) => {
   console.log("getting...");
   try {
     const { passportID } = req.params;
-    const userToGet = utils.getUser(passportID);
+    const userToGet = await utils.getUser(passportID);
+    console.log(userToGet);
     res.send(userToGet);
   } catch (error) {
     res.status(404).send({ error: error.message });
   }
 });
 
-app.get("/api/users", (req, res, next) => {
-  if (Object.keys(req.query).length > 0) {
-    next();
-  } else {
-    console.log("getting all users..");
-    try {
-      const users = utils.getUsers();
-      res.status(200).send(users);
-    } catch (error) {
-      res.status(404).send({ error: error.message });
-    }
-  }
-});
-
-app.get("/api/users", (req, res, next) => {
-  if (req.query["amountAbove"]) {
-    console.log("filtering by amount over specified amount...");
-    try {
-      const { amountAbove } = req.query;
-      const { prop } = req.query;
-      const filteredUsers = utils.filterUsersBy(amountAbove, prop);
-      res.status(200).send(filteredUsers);
-    } catch (error) {
-      res.status(404).send({ error: error.message });
-    }
-  } else {
-    next();
-  }
-});
-
-app.get("/api/users", (req, res, next) => {
-  if (req.query["isActive"]) {
-    console.log("getting users by activity and amount...");
-    try {
-      const { isActive } = req.query;
-      const { amount } = req.query;
-      const filteredUsers = utils.filterUsersByActivity(isActive, amount);
-      res.status(200).send(filteredUsers);
-    } catch (error) {
-      res.status(404).send({ error: error.message });
-    }
-  } else {
-    next();
-  }
-});
-
-app.get("/api/users", (req, res, next) => {
-  console.log("sorting by a prop...");
+app.get("/api/users", async (req, res) => {
+  console.log("getting all users..");
   try {
-    const { sortBy } = req.query;
-    const { orderBy } = req.query;
-    const sortedUsers = utils.sortUsersBy(sortBy, orderBy);
-    res.status(200).send(sortedUsers);
+    const users = await utils.getUsers();
+    res.status(200).send(users);
   } catch (error) {
     res.status(404).send({ error: error.message });
   }
