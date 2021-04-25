@@ -1,4 +1,4 @@
-require("./client/src/db/mongoose");
+const connectDB = require("./client/src/db/mongoose");
 const express = require("express");
 const app = express();
 var cors = require("cors");
@@ -10,6 +10,11 @@ const PORT = process.env.PORT || 8084;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+const connect = async () => {
+  await connectDB();
+};
+connect();
 
 app.post("/users", async (req, res) => {
   console.log("Posting a new User...");
