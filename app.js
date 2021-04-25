@@ -1,7 +1,7 @@
-require("./client/src/db/mongoose");
 const express = require("express");
 const app = express();
 var cors = require("cors");
+require("./client/src/db/mongoose");
 const utils = require("./utils");
 const User = require("./client/src/model/User");
 const Transaction = require("./client/src/model/transactions");
@@ -10,6 +10,11 @@ const PORT = process.env.PORT || 8084;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(express.static(path.join(__dirname, "../build")));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../build"));
+});
 
 app.post("/users", async (req, res) => {
   console.log("Posting a new User...");
