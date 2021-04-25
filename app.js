@@ -13,11 +13,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 connectDB().then(() =>
-  app
-    .listen(PORT, () => {
-      console.log(`Listening on port #${PORT}`);
-    })
-    .catch((error) => console.log(error))
+  app.listen(PORT, () => {
+    console.log(`Listening on port #${PORT}`);
+  })
 );
 
 // app.use(express.static(path.join(__dirname, "../build")));
