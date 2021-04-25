@@ -10,6 +10,9 @@
     "start-client": " cd src",
     "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install npm && run build"
   },
+  "engines": {
+    "node": "14.15.2"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
