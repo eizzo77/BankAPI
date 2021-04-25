@@ -1,6 +1,7 @@
 const express = require("express");
-const app = express();
 var cors = require("cors");
+const path = require("path");
+const app = express();
 require("./client/src/db/mongoose");
 const utils = require("./utils");
 const User = require("./client/src/model/User");
