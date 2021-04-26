@@ -1,12 +1,13 @@
 const express = require("express");
 const router = new express.Router();
+const expressAsyncHandler = require("express-async-handler");
 const User = require("../model/user");
 const utils = require("../utils");
 
 router.post("/api/users", async (req, res) => {
   console.log("Posting a new User...");
-  const user = new User({ _id: req.body.passportID, ...req.body });
   try {
+    const user = await new User({ _id: req.body.passportID, ...req.body });
     await user.save();
     console.log(user);
     res.status(201).send(user);
@@ -115,14 +116,17 @@ router.get("/api/users/:passportID", async (req, res) => {
   }
 });
 
-router.get("/api/users", async (req, res) => {
-  console.log("getting all users..");
-  try {
-    const users = await utils.getUsers();
-    res.status(200).send(users);
-  } catch (error) {
-    res.send({ error: error.message });
-  }
-});
+router.get(
+  "/api/users",
+  expressAsyncHandler(async (req, res) => {
+    console.log("getting all users..");
+    try {
+      const users = await utils.getUsers();
+      res.status(200).send(users);
+    } catch (error) {
+      res.send({ error: error.message });
+    }
+  })
+);
 
 module.exports = router;
