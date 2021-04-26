@@ -22,9 +22,9 @@ const getUser = async (passportID) => {
   return user;
 };
 
-const updateUserAmount = async (user, amount, toUpdate, mode) => {
+const updateUserAmount = async (passportID, amount, toUpdate, mode) => {
   const userAfterUpdate = await User.findByIdAndUpdate(
-    user._id,
+    passportID,
     {
       $inc: {
         [toUpdate]:
@@ -63,10 +63,10 @@ const toggleActive = async (passportID) => {
 // basically in this function i use a mix of withraw & deposit = withdraw for the sending user and deposit for the receiving one.
 // in case of an error in withdraw, it throws error so the function doesnt proceed to deposit part.
 // in case of an error in deposit, I catch the error and deposit the withdrawn amount of money back to the sending user.
-const transfer = async (user, userToTransfer, amount) => {
+const transfer = async (senderID, userToTransferID, amount) => {
   console.log(amount);
   let sendingUserAfterWithdraw = await updateUserAmount(
-    user,
+    senderID,
     amount,
     "cash",
     "withdraw"
@@ -75,14 +75,14 @@ const transfer = async (user, userToTransfer, amount) => {
   let receivingUserAfterDeposit;
   try {
     receivingUserAfterDeposit = await updateUserAmount(
-      userToTransfer,
+      userToTransferID,
       amount,
       "cash",
       "deposit"
     );
   } catch (error) {
     sendingUserAfterWithdraw = await updateUserAmount(
-      user,
+      senderID,
       amount,
       "cash",
       "deposit"
