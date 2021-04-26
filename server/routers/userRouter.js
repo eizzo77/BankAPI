@@ -3,7 +3,7 @@ const router = new express.Router();
 const User = require("../model/user");
 const utils = require("../utils");
 
-router.post("/users", async (req, res) => {
+router.post("/api/users", async (req, res) => {
   console.log("Posting a new User...");
   const user = await new User({ _id: req.body.passportID, ...req.body });
   try {
