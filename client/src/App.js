@@ -49,8 +49,8 @@ export const App = () => {
     try {
       const newUser = { passportID: idInput, name: "BLAMES" };
       const updatedUser = await axios.post("/api/users", newUser);
-      users.push(updatedUser.data);
-      setUsers(users);
+      const newUsers = [...users, updatedUser];
+      setUsers(newUsers);
       setAddUserMsg("");
     } catch (error) {
       setAddUserMsg(error.message);
