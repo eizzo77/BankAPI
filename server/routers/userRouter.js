@@ -5,13 +5,13 @@ const utils = require("../utils");
 
 router.post("/api/users", async (req, res) => {
   console.log("Posting a new User...");
-  const user = await new User({ _id: req.body.passportID, ...req.body });
+  const user = new User({ _id: req.body.passportID, ...req.body });
   try {
     await user.save();
     console.log(user);
     res.status(201).send(user);
   } catch (error) {
-    res.status(400).send(error.message);
+    res.send(error.message);
   }
 });
 
@@ -121,7 +121,7 @@ router.get("/api/users", async (req, res) => {
     const users = await utils.getUsers();
     res.status(200).send(users);
   } catch (error) {
-    res.status(404).send({ error: error.message });
+    res.send({ error: error.message });
   }
 });
 

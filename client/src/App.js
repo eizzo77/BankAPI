@@ -19,9 +19,10 @@ export const App = () => {
   const renderUsers = () => {
     return users.map((user) => {
       return (
-        <div key={user.passportID}>
+        <div key={user._id}>
           <ul>
-            <li>ID: {user.passportID}</li>
+            <li>ID: {user._id}</li>
+            <li>Name: {user.name}</li>
             <li>Cash: {user.cash}</li>
             <li>Credit: {user.credit}</li>
             <li>Activity: {user.isActive}</li>
@@ -40,10 +41,13 @@ export const App = () => {
 
   const onAddingUserClick = async () => {
     try {
-      const users = await axios.post("/api/users/" + idInput);
-      setUsers(users.data);
+      const newUser = { passportID: idInput, name: "BLAMES" };
+      const updatedUser = await axios.post("/api/users", newUser);
+      users.push(updatedUser.data);
+      setUsers(users);
       setAddUserMsg("");
     } catch (error) {
+      console.log("RERROR {POST");
       setAddUserMsg(error.message);
     }
   };
@@ -63,7 +67,6 @@ export const App = () => {
           <button onClick={() => onAddingUserClick()}>Add User</button>
           <button onClick={() => onFetchUsersClick()}>Get Users</button>
           {addUserMsg}
-          another try
         </div>
       </div>
     </>
