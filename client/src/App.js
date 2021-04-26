@@ -6,15 +6,15 @@ export const App = () => {
   const [addUserMsg, setAddUserMsg] = useState("");
   const [idInput, setIdInput] = useState("");
 
-  // useEffect(() => {
-  //   const fetch = async () => {
-  //     console.log("here");
-  //     const usersData = await axios.get("api/users");
-  //     console.log(usersData);
-  //     setUsers(usersData.data);
-  //   };
-  //   fetch();
-  // }, []);
+  useEffect(() => {
+    const fetch = async () => {
+      console.log("here");
+      const usersData = await axios.get("api/users");
+      console.log(usersData);
+      setUsers(usersData.data);
+    };
+    fetch();
+  }, []);
 
   const renderUsers = () => {
     return users.map((user) => {
@@ -38,12 +38,12 @@ export const App = () => {
     });
   };
 
-  const onFetchUsersClick = async () => {
-    try {
-      const usersData = await axios.get("api/users");
-      setUsers(usersData.data);
-    } catch (error) {}
-  };
+  // const onFetchUsersClick = async () => {
+  //   try {
+  //     const usersData = await axios.get("api/users");
+  //     setUsers(usersData.data);
+  //   } catch (error) {}
+  // };
 
   const onAddingUserClick = async () => {
     try {
@@ -53,7 +53,6 @@ export const App = () => {
       setUsers(users);
       setAddUserMsg("");
     } catch (error) {
-      console.log("RERROR {POST");
       setAddUserMsg(error.message);
     }
   };
@@ -71,7 +70,7 @@ export const App = () => {
             type="numbers"
           ></input>
           <button onClick={() => onAddingUserClick()}>Add User</button>
-          <button onClick={() => onFetchUsersClick()}>Get Users</button>
+          {/* <button onClick={() => onFetchUsersClick()}>Get Users</button> */}
           {addUserMsg}
         </div>
       </div>
