@@ -1,4 +1,4 @@
-require("./db/mongoose");
+const connectDB = require("./db/mongoose");
 const express = require("express");
 var cors = require("cors");
 // const path = require("path");
@@ -6,7 +6,6 @@ const app = express();
 const userRouter = require("./routers/userRouter");
 const transactionRouter = require("./routers/transactionRouter");
 const PORT = process.env.PORT || 8084;
-
 console.log("in app");
 app.use(cors());
 app.use(express.json());
@@ -23,6 +22,10 @@ if (process.env.NODE_ENV === "production") {
   app.use(express.static("client/build"));
 }
 
-app.listen(PORT, () => {
-  console.log(`Listening on port #${PORT}`);
-});
+const connection = async () => {
+  await connectDB();
+  app.listen(PORT, () => {
+    console.log(`Listening on port #${PORT}`);
+  });
+};
+connection();
