@@ -25,7 +25,13 @@ export const App = () => {
             <li>Name: {user.name}</li>
             <li>Cash: {user.cash}</li>
             <li>Credit: {user.credit}</li>
-            <li>Activity: {user.isActive}</li>
+            <li>
+              Activity:{" "}
+              <label style={{ color: user.isActive ? "green" : "red" }}>
+                {" "}
+                {user.isActive.toString()}
+              </label>
+            </li>
           </ul>
         </div>
       );
@@ -69,6 +75,7 @@ export const App = () => {
           {addUserMsg}
         </div>
       </div>
+      {console.log(users)}
     </>
   );
 };

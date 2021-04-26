@@ -7,6 +7,7 @@ const userRouter = require("./routers/userRouter");
 const transactionRouter = require("./routers/transactionRouter");
 const PORT = process.env.PORT || 8084;
 
+console.log("in app");
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
