@@ -7,6 +7,12 @@ const userRouter = require("./routers/userRouter");
 const transactionRouter = require("./routers/transactionRouter");
 const PORT = process.env.PORT || 8084;
 
+connectDB().then(() =>
+  app.listen(PORT, () => {
+    console.log(`Listening on port #${PORT}`);
+  })
+);
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -21,9 +27,3 @@ app.use(transactionRouter);
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("client/build"));
 }
-
-connectDB().then(() =>
-  app.listen(PORT, () => {
-    console.log(`Listening on port #${PORT}`);
-  })
-);
