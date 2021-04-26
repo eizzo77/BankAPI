@@ -2,12 +2,12 @@
   "name": "web-server",
   "version": "1.0.0",
   "description": "",
-  "main": "server/app.js",
+  "main": "index.js",
   "scripts": {
     "build": "cd client && npm run build",
     "install-client": "cd client && npm install",
     "start": "node server/app.js",
-    "start-client": " cd client/src",
+    "start-client": " cd client/src && npm start",
     "heroku-postbuild": "npm install --prefix client && npm run build --prefix client"
   },
   "keywords": [],
