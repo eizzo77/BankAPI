@@ -8,9 +8,9 @@ export const App = () => {
 
   useEffect(() => {
     const fetch = async () => {
-      console.log("here");
+      // console.log("here");
       const usersData = await axios.get("api/users");
-      console.log(usersData);
+      // console.log(usersData);
       setUsers(usersData.data);
     };
     fetch();
@@ -49,7 +49,8 @@ export const App = () => {
     try {
       const newUser = { passportID: idInput, name: "BLAMES" };
       const updatedUser = await axios.post("/api/users", newUser);
-      const newUsers = [...users, updatedUser];
+      console.log(updatedUser);
+      const newUsers = [...users, updatedUser.data];
       setUsers(newUsers);
       setAddUserMsg("");
     } catch (error) {
@@ -74,7 +75,7 @@ export const App = () => {
           {addUserMsg}
         </div>
       </div>
-      {console.log(users)}
+      {/* {console.log(users)} */}
     </>
   );
 };
