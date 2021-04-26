@@ -1,7 +1,7 @@
 const express = require("express");
 const router = new express.Router();
 const User = require("../model/user");
-const utils = require("./utils");
+const utils = require("../utils");
 
 router.post("/users", async (req, res) => {
   console.log("Posting a new User...");
@@ -124,3 +124,5 @@ router.get("/api/users", async (req, res) => {
     res.status(404).send({ error: error.message });
   }
 });
+
+module.exports = router;

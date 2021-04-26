@@ -4,6 +4,7 @@ var cors = require("cors");
 // const path = require("path");
 const app = express();
 const userRouter = require("./routers/userRouter");
+const transactionRouter = require("./routers/transactionRouter");
 const PORT = process.env.PORT || 8084;
 
 app.use(cors());

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = new express.Router();
 const Transaction = require("../model/transactions");
-const utils = require("./utils");
+const utils = require("../utils");
 
 router.post("/api/users/:passportID/transfer", async (req, res) => {
   console.log("transffering...");
@@ -37,3 +37,5 @@ router.get("/api/transactions", async (req, res) => {
     res.status(404).send({ error: error.message });
   }
 });
+
+module.exports = router;
