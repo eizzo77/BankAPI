@@ -1,4 +1,4 @@
-const User = require("./client/src/model/User");
+const User = require("./model/user");
 
 const createUser = (newUser) => {
   const currentUsers = loadUsers();
