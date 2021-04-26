@@ -1,4 +1,3 @@
-// require("dotenv");
 const mongoose = require("mongoose");
 
 const atlasURL =
